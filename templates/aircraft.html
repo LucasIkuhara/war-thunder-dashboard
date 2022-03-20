@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>WTDash: Aircraft</title>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="https://unpkg.com/vue-router@4"></script>
+        <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+        <link rel="icon" id="favicon" href="https://img.icons8.com/cute-clipart/2x/fighter-jet.png">
+
+    </head>
+
+    <body class="scaffold">
+        <div id="app">
+            <div class="scaffold" id="main" v-bind:class="connectionStyle">
+
+                <div class="box">
+                    <div id="speedGauge" class="vis"></div>
+                </div>
+
+                <div class="box">
+                    <div id="altitudeGauge" class="vis"></div>
+                </div>
+
+                <div class="box">
+                    <div id="SMEGauge" class="vis"></div>
+                </div>
+
+                <div class="box">
+                    <div id="artificalHorizon" class="vis"></div>
+                </div>
+
+               
+            </div>
+
+        </div>
+            
+    </body>
+
+    <!-- Vue App -->
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    connStatus: true,
+                    favicon: null
+                }
+            },
+
+            mounted() {
+                
+                const rate = 5
+                this.favicon = document.getElementById('favicon')
+
+                setInterval(async () => {
+
+                    await this.plot('speedGauge', 'speed')
+                    await this.plot('altitudeGauge', 'altitude')
+                    await this.plot('SMEGauge', 'energy')
+                    await this.plot('artificalHorizon', 'artifical-horizon')
+
+                }, (1/rate)*1000)
+
+            },
+
+            computed: {
+       
+                connectionStyle: function () {
+                    
+                    if (this.favicon) {
+                        
+                        this.connStatus ? 
+                        (this.favicon.href = "https://img.icons8.com/cute-clipart/2x/fighter-jet.png") :
+                        (this.favicon.href = "https://img.icons8.com/cute-clipart/2x/explosion.png")
+                    }
+
+                    return  {
+                        'connected': this.connStatus,
+                        'disconnected': !this.connStatus,
+                    }
+                }
+            },
+
+            methods: {
+                plot(div, endpoint) {
+                
+                    fetch(`http://localhost:8000/${endpoint}`).then( async (value) => {
+                        let graph = await value.json()
+                        
+                        Plotly.newPlot(
+                            div, 
+                            graph.data, 
+                            graph.layout, 
+                            {
+                                displayModeBar: false,
+                                responsive: true
+                            })
+
+                        this.connStatus = true;
+
+                    }).catch(() => {
+                        this.connStatus = false;
+                    })
+
+                }
+            }
+
+        }).mount('#app')
+
+    </script>
+
+    <style> 
+        #main {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+            background-color: #252c25;
+        }
+
+        .box {
+            background-color: #6b786a;
+            box-shadow: rgba(0, 0, 0, 0.171) 3px 3px;
+            border-radius: 3px;
+            margin: 10px;
+            padding: 12px;
+            height: 400px;
+            width: 400px;
+            overflow: hidden;
+        }   
+
+        .scaffold {
+            display: flex;
+            margin: 0px;
+            padding: 0px;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgb(255, 255, 255);
+        }
+
+        .vis {
+            border:#252c25;
+            border-style: solid;
+            border-width: 1px;
+        }
+
+        .body {
+            margin: 0px;
+            background: grey;
+        }
+
+        .connected {
+            opacity: 100%;
+        }
+
+        .disconnected {
+            opacity: 30%;
+        }
+        
+    </style>
+
+</html>
