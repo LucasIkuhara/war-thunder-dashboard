@@ -33,6 +33,7 @@ class TelemetryThread:
         self.rate = rate
         self.max_requests = max_concurrent_requests
         self.timeout = timeout
+        self.start_time = time()
 
         self.thread = Thread(target=self.start_loop, daemon=True)
         self.thread.start()
@@ -83,7 +84,7 @@ class TelemetryThread:
                         self.telemetry.indicators_from_json)
                     )
 
-                    self.telemetry.time = time()
+                    self.telemetry.time = time() - self.start_time
 
     async def fetch_data(self, url: str, semaphore: asyncio.Semaphore, callback: Callable):
         '''
