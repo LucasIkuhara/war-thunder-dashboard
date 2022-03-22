@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="box">
-                    <div id="artificalHorizon" class="vis"></div>
+                    <div id="artificialHorizon" class="vis"></div>
                 </div>
 
                
@@ -43,21 +43,27 @@
             data() {
                 return {
                     connStatus: true,
-                    favicon: null
+                    favicon: null,
+                    speedGaugeDrawn: false,
+                    altitudeGaugeDrawn: false,
+                    SMEGaugeDrawn: false,
+                    artificialHorizonDrawn: false
                 }
             },
 
             mounted() {
                 
-                const rate = 5
+                const rate = 20
                 this.favicon = document.getElementById('favicon')
 
                 setInterval(async () => {
-
-                    await this.plot('speedGauge', 'speed')
-                    await this.plot('altitudeGauge', 'altitude')
-                    await this.plot('SMEGauge', 'energy')
-                    await this.plot('artificalHorizon', 'artifical-horizon')
+                    
+                    await Promise.all([
+                        this.plot('speedGauge', 'speed'),
+                        this.plot('altitudeGauge', 'altitude'),
+                        this.plot('SMEGauge', 'energy'),
+                        this.plot('artificialHorizon', 'artificial-horizon')
+                    ])
 
                 }, (1/rate)*1000)
 
@@ -78,23 +84,43 @@
                         'connected': this.connStatus,
                         'disconnected': !this.connStatus,
                     }
+                },
+
+                allDrawnOnce: function() {
+                    return this.speedGaugeDrawn && 
+                    this.altitudeGaugeDrawn && 
+                    this.SMEGaugeDrawn && 
+                    this.artificialHorizonDrawn
                 }
             },
 
             methods: {
-                plot(div, endpoint) {
+                async plot(div, endpoint) {
                 
-                    fetch(`http://localhost:8000/${endpoint}`).then( async (value) => {
+                    await fetch(`http://localhost:8000/${endpoint}`).then( async (value) => {
                         let graph = await value.json()
                         
-                        Plotly.newPlot(
-                            div, 
-                            graph.data, 
-                            graph.layout, 
-                            {
-                                displayModeBar: false,
-                                responsive: true
-                            })
+                        if (!this.allDrawnOnce) {
+                            Plotly.newPlot(
+                                div, 
+                                graph.data, 
+                                graph.layout, 
+                                {
+                                    displayModeBar: false,
+                                    responsive: true
+                                })
+                        }
+
+                        else {
+                            Plotly.react( 
+                                div, 
+                                graph.data, 
+                                graph.layout, 
+                                {
+                                    displayModeBar: false,
+                                    responsive: true
+                                })
+                        }
 
                         this.connStatus = true;
 

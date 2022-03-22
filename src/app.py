@@ -52,7 +52,7 @@ def energy_over_time():
     )
 
 
-@app.get('/artifical-horizon')
+@app.get('/artificial-horizon')
 @graph_as_json
 def artificial_horizon():
 
