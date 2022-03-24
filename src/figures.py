@@ -194,7 +194,7 @@ class FigureFactory:
         fig.update_layout(
             width=400,
             height=400,
-            margin={"l": 10, "r": 10, "b": 10, "t": 10, "pad": 10},
+            margin={"l": 10, "r": 10, "b": 30, "t": 10, "pad": 10},
             showlegend=False,
             paper_bgcolor='#111111',
             plot_bgcolor='#111111',
@@ -203,6 +203,6 @@ class FigureFactory:
 
         # Set range of the axes
         fig.update_xaxes(range=[origin[0]-fov, origin[0]+fov])
-        fig.update_yaxes(range=[-fov, fov])
+        fig.update_yaxes(range=[-fov, fov], showticklabels=False)
 
         return fig
