@@ -1,5 +1,3 @@
-from turtle import fillcolor
-from matplotlib.pyplot import legend
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
@@ -108,29 +106,51 @@ class FigureFactory:
             [-500, 0]
         ])
 
+        # Make lines on the display
+
+        # Fixed Markings
+        fixed_markings = np.array([
+            [-10, 0],
+            [-5, 0],
+            [0, -5],
+            [5, 0],
+            [10, 0]
+        ])
+
+        # Dynamic markings
+        # Get all increments of 10 and match them to two points for each line
+        dynamic_markings_y = [y for y in range(-180, 180, 10)]
+        line_width_base = np.tile(10, len(dynamic_markings_y)) * \
+            np.power(np.cos(np.radians(dynamic_markings_y)), 6)*2
+
+        right_markings = np.stack((line_width_base, dynamic_markings_y), axis=1)
+        left_markings = np.stack((line_width_base*-1, dynamic_markings_y), axis=1)
+
         # Rotate components of the AH
+        # Generate a rotation matrix
         rot_matrix = np.array([
             [np.cos(roll), np.sin(roll)],
             [-np.sin(roll), np.cos(roll)]
         ])
 
+        # Apply rotation to all dynamic components
         blue_box = np.matmul(blue_box, rot_matrix)
         orange_box = np.matmul(orange_box, rot_matrix)
+        right_markings = np.matmul(right_markings, rot_matrix)
+        left_markings = np.matmul(left_markings, rot_matrix)
 
         # Tranlate center of plot to current yaw and pitch
         origin = np.array([yaw, pitch])
 
         blue_box = blue_box + origin
         orange_box = orange_box + origin
+        right_markings = right_markings + origin
+        left_markings = left_markings + origin
 
         # Plotting steps
         fig = go.Figure()
-        fig.update_layout(
-            width=400,
-            height=400,
-            margin={"l": 10, "r": 10, "b": 10, "t": 10, "pad": 10}
-        )
 
+        # Add background
         fig.add_traces([
             # Orange part
             go.Scatter(
@@ -148,11 +168,41 @@ class FigureFactory:
                 fill="toself",
                 line_color='rgba(0,0,0,0)',
                 fillcolor='lightblue'
-            )
+            ),
+
+            # Add fixed markings
+
+            go.Scatter(
+                x=fixed_markings.T[0],
+                y=fixed_markings.T[1],
+                line_color='white',
+                mode='lines',
+                line_width=5
+            ),
         ])
 
+        # Add Dynamic Markings
+        for left, right in zip(left_markings, right_markings):
+            fig.add_trace(go.Scatter(
+                x=[left[0], right[0]],
+                y=[left[1], right[1]],
+                line_color='white',
+                mode='lines'
+            ))
+
+        # Figure layout
+        fig.update_layout(
+            width=400,
+            height=400,
+            margin={"l": 10, "r": 10, "b": 10, "t": 10, "pad": 10},
+            showlegend=False,
+            paper_bgcolor='#111111',
+            plot_bgcolor='#111111',
+            font_color='#f2f5fa'
+        )
+
+        # Set range of the axes
         fig.update_xaxes(range=[origin[0]-fov, origin[0]+fov])
         fig.update_yaxes(range=[-fov, fov])
-        fig.update_layout(showlegend=False)
 
         return fig

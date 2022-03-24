@@ -1,5 +1,4 @@
-from socket import timeout
-from time import sleep, time
+from time import time
 from data_models import HistoricTelemetry
 from threading import Thread
 import asyncio
