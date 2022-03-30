@@ -1,5 +1,5 @@
 from time import time
-from data_models import HistoricTelemetry
+from data_models import HistoricTelemetry, MapState
 from threading import Thread
 import asyncio
 import aiohttp
@@ -7,10 +7,10 @@ from aiolimiter import AsyncLimiter
 from collections.abc import Callable
 
 
-class TelemetryThread:
+class DataThread:
     '''
-    # TelemetryThread
-    A wrapper class to a asynchronous telemetry thread.
+    # DataThread
+    A wrapper class to an asynchronous data-fetching thread.
     The thread feeds a HistoricTelemetry object, accessible as a property of this
     classes' objects called 'telemetry'.
     '''
@@ -27,6 +27,7 @@ class TelemetryThread:
             raise Exception('Rate must be bigger than zero.')
 
         self.telemetry = HistoricTelemetry(buffer_size)
+        self.map = MapState()
 
         # Request loop params
         self.rate = rate
@@ -39,7 +40,7 @@ class TelemetryThread:
 
     def start_loop(self):
         '''
-        # TelemetryThread
+        # DataThread
         ## Start Loop
         This is the target to the thread spawned in this classes __init__ method. This
         method starts an async loop by calling update_loop.
@@ -49,7 +50,7 @@ class TelemetryThread:
 
     async def update_loop(self) -> None:
         '''
-        # TelemetryThread
+        # DataThread
         ## Update Loop
         This method is the main async coroutine of this class.
         It handles the control of the rate of http requests made.
@@ -83,11 +84,20 @@ class TelemetryThread:
                         self.telemetry.indicators_from_json)
                     )
 
+                async with limiter:
+                    await semaphore.acquire()
+
+                    asyncio.create_task(self.fetch_data(
+                        "http://localhost:8111/map_obj.json",
+                        semaphore,
+                        self.map.objects_from_json)
+                    )
+
                     self.telemetry.time = time() - self.start_time
 
     async def fetch_data(self, url: str, semaphore: asyncio.Semaphore, callback: Callable):
         '''
-        # TelemetryThread
+        # DataThread
         ## Fetch Data
         Performs a GET request to a given URL asynchronously. Its response is passed to
         the provided callback function as a Dict.

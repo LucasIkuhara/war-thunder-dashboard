@@ -15,21 +15,24 @@
             <div class="scaffold" id="main" v-bind:class="connectionStyle">
 
                 <div class="box">
-                    <div id="speedGauge" class="vis"></div>
+                    <div id="speed-gauge" class="vis"></div>
                 </div>
 
                 <div class="box">
-                    <div id="altitudeGauge" class="vis"></div>
+                    <div id="altitude-gauge" class="vis"></div>
                 </div>
 
                 <div class="box">
-                    <div id="SMEGauge" class="vis"></div>
+                    <div id="sme-gauge" class="vis"></div>
                 </div>
 
                 <div class="box">
-                    <div id="artificialHorizon" class="vis"></div>
+                    <div id="artificial-horizon" class="vis"></div>
                 </div>
 
+                <div class="box">
+                    <div id="radar-map" class="vis"></div>
+                </div>
                
             </div>
 
@@ -53,19 +56,31 @@
 
             mounted() {
                 
-                const rate = 1
+                const slowRate = 1
+                const fastRate = 5
+
                 this.favicon = document.getElementById('favicon')
 
+                // Slow cycle
                 setInterval(async () => {
                     
                     await Promise.all([
-                        this.plot('speedGauge', 'speed'),
-                        this.plot('altitudeGauge', 'altitude'),
-                        this.plot('SMEGauge', 'energy'),
-                        this.plot('artificialHorizon', 'artificial-horizon')
+                        this.plot('speed-gauge', 'speed'),
+                        this.plot('altitude-gauge', 'altitude'),
+                        this.plot('sme-gauge', 'energy')
                     ])
 
-                }, (1/rate)*1000)
+                }, (1/slowRate)*1000);
+                
+                // Fast cycle
+                setInterval(async () => {
+                    
+                    await Promise.all([
+                        this.plot('artificial-horizon', 'artificial-horizon'),
+                        this.plot('radar-map', 'radar-map')
+                    ])
+
+                }, (1/fastRate)*1000);
 
             },
 

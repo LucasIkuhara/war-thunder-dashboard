@@ -1,7 +1,8 @@
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-from math import pi
+from data_models import MapState
+from utils import LinAlgUtils
 
 
 class FigureFactory:
@@ -35,7 +36,7 @@ class FigureFactory:
             width=400,
             height=400,
             template='plotly_dark',
-            title='Speed'
+            title=f'Speed: {speed[-1]:.1f} km/h'
         )
 
         fig.update_xaxes(title_text='Time')
@@ -52,7 +53,7 @@ class FigureFactory:
             width=400,
             height=400,
             template='plotly_dark',
-            title='Altitude'
+            title=f'Altitude: {altitude[-1]:.1f} m'
         )
 
         fig.update_xaxes(title_text='Time')
@@ -76,11 +77,54 @@ class FigureFactory:
             width=400,
             height=400,
             template='plotly_dark',
-            title='Specific Energy'
+            title=f'Specific Energy: {energy[-1]:.0f} J/kg'
         )
 
         fig.update_xaxes(title_text='Time (s)')
         fig.update_yaxes(title_text='Specific Mechanical Energy (J/kg)')
+
+        return fig
+
+    @staticmethod
+    def radar_map(radar_detections: MapState, compass_heading: float):
+
+        radius = np.array([])
+        angles = np.array([])
+
+        # Get the positions of all aircraft
+        for aircraft in radar_detections.aircraft:
+
+            r, theta = LinAlgUtils.to_polar(aircraft.position)
+
+            radius = np.append(radius, r*10)
+            angles = np.append(angles, theta)
+
+        # for airfield in radar_detections.airfields:
+        #     print(LinAlgUtils.to_polar(airfield.position))
+
+        for ground_object in radar_detections.ground_units:
+
+            r, theta = LinAlgUtils.to_polar(ground_object.position)
+
+            radius = np.append(radius, r*10)
+            angles = np.append(angles, theta)
+
+        angles = np.rad2deg(angles)
+
+        # Create plot
+        fig = px.scatter_polar(
+            r=radius,
+            theta=angles,
+            start_angle=compass_heading+90,
+            # direction="counterclockwise",
+            template='plotly_dark'
+        )
+
+        fig.update_layout(
+            width=400,
+            height=400,
+            margin={"l": 25, "r": 25, "b": 25, "t": 25, "pad": 0}
+        )
 
         return fig
 
@@ -146,6 +190,7 @@ class FigureFactory:
         orange_box = orange_box + origin
         right_markings = right_markings + origin
         left_markings = left_markings + origin
+        fixed_markings = fixed_markings + np.array([yaw, 0])
 
         # Plotting steps
         fig = go.Figure()
@@ -158,7 +203,8 @@ class FigureFactory:
                 y=orange_box.T[1],
                 fill="toself",
                 line_color='rgba(0,0,0,0)',
-                fillcolor='orange'
+                fillcolor='orange',
+                hoverinfo='skip'
             ),
 
             # Blue Part
@@ -167,7 +213,8 @@ class FigureFactory:
                 y=blue_box.T[1],
                 fill="toself",
                 line_color='rgba(0,0,0,0)',
-                fillcolor='lightblue'
+                fillcolor='lightblue',
+                hoverinfo='skip'
             ),
 
             # Add fixed markings
@@ -177,17 +224,21 @@ class FigureFactory:
                 y=fixed_markings.T[1],
                 line_color='white',
                 mode='lines',
-                line_width=5
+                line_width=5,
+                hoverinfo='skip'
             ),
         ])
 
         # Add Dynamic Markings
-        for left, right in zip(left_markings, right_markings):
+        for left, right, altitude in zip(left_markings, right_markings, dynamic_markings_y):
             fig.add_trace(go.Scatter(
                 x=[left[0], right[0]],
                 y=[left[1], right[1]],
                 line_color='white',
-                mode='lines'
+                mode='lines+text',
+                text=f'{altitude:.0f}',
+                textposition=["top left", "top right"],
+                hoverinfo='skip'
             ))
 
         # Figure layout

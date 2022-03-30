@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fetchers import TelemetryThread
+from fetchers import DataThread
 from utils import graph_as_json
 from figures import FigureFactory
 
@@ -17,8 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-telemetry_thread = TelemetryThread(10, 50, 20, 0.5)
-telemetry = telemetry_thread.telemetry
+data_thread = DataThread(10, 50, 20, 0.5)
+telemetry = data_thread.telemetry
+radar = data_thread.map
 
 
 @app.get('/speed')
@@ -59,5 +60,15 @@ def artificial_horizon():
     return FigureFactory.artificial_horizon(
         telemetry.roll,
         telemetry.pitch,
+        telemetry.compass
+    )
+
+
+@app.get('/radar-map')
+@graph_as_json
+def radar_map():
+
+    return FigureFactory.radar_map(
+        radar,
         telemetry.compass
     )
