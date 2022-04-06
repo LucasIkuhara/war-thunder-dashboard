@@ -7,7 +7,7 @@ from utils import LinAlgUtils
 
 class FigureFactory:
     '''
-    # Figure Factory
+    # FigureFactory
 
     A Factory for building Plotly Figures specifically
     made for one visualization. It supports everything from
@@ -29,6 +29,20 @@ class FigureFactory:
 
     @staticmethod
     def speed_series(speed: np.array, time: np.array):
+        '''
+        # FigureFactory
+        ## speed_series
+
+        Create a time-series line graph of speed.
+
+        Args:
+            speed: array of speed values.
+
+            time: array of timestamps/generic time values.
+
+        Returns:
+            A plotly figure containing the graph.
+        '''
 
         fig = px.line(
             x=time,
@@ -46,7 +60,20 @@ class FigureFactory:
 
     @staticmethod
     def altitude_series(altitude: np.array, time: np.array):
+        '''
+        # FigureFactory
+        ## altitude_series
 
+        Create a time-series line graph of altitude.
+
+        Args:
+            speed: array of speed values.
+
+            time: array of timestamps/generic time values.
+
+        Returns:
+            A plotly figure containing the graph.
+        '''
         fig = px.line(
             x=time,
             y=altitude,
@@ -93,6 +120,7 @@ class FigureFactory:
         radius = np.array([0])
         angles = np.array([0])
         display_type = np.array(['root'])
+        compass_heading = np.array(compass_heading)
 
         # Get the positions of all aircraft
         for aircraft in radar_detections.aircraft:
@@ -119,7 +147,8 @@ class FigureFactory:
                 'Enemy Ground Unit' if ground_object.is_foe else 'Friendly Ground Unit'
             )
 
-        angles = np.rad2deg(angles)
+        # Adjust angles to be relative and use degrees
+        angles = np.rad2deg(angles) + 90
 
         # Create plot
         fig = px.scatter_polar(
@@ -141,16 +170,18 @@ class FigureFactory:
 
         # Add airfields
         for airfield in radar_detections.airfields:
-            print(airfield)
+
             r_start, theta_start = LinAlgUtils.to_polar(
                 airfield.position - radar_detections.player_position)
 
             r_end, theta_end = LinAlgUtils.to_polar(
                 airfield.end_postition - radar_detections.player_position)
 
+            theta = np.rad2deg([theta_start, theta_end]) + 90
+
             fig.add_trace(go.Scatterpolar(
-                r=[r_start, r_end],
-                theta=np.rad2deg([theta_start, theta_end]),
+                r=np.array([r_start, r_end]),
+                theta=theta,
                 mode='lines',
                 line_color=('red' if airfield.is_foe else 'green')
             ))

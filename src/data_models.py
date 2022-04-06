@@ -76,7 +76,14 @@ class HistoricTelemetry:
             'aviahorizon_pitch' values
         '''
 
-        self.compass_series = np.append(self.compass_series, json['compass'])
+        # Handle inconsistent API responses by the game.
+        try:
+            compass = json['compass']
+
+        except KeyError:
+            compass = json['compass1']
+
+        self.compass_series = np.append(self.compass_series, compass)
         self.roll_series = np.append(self.roll_series, json['aviahorizon_roll'])
         self.pitch_series = np.append(self.pitch_series, json['aviahorizon_pitch'])
 
@@ -141,7 +148,6 @@ class MapState:
         # MapState
         ## clear_entries
         Clear all existing entries for aircraft, ground units and airfields.
-
         '''
         self.aircraft = []
         self.airfields = []
@@ -157,7 +163,7 @@ class MapState:
         Args:
             json: a JSON parsed as a dict containing a list of objects from the players map.
         '''
-        
+
         self.clear_entries()
 
         for entry in json:
