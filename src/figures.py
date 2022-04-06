@@ -88,26 +88,36 @@ class FigureFactory:
     @staticmethod
     def radar_map(radar_detections: MapState, compass_heading: float):
 
-        radius = np.array([])
-        angles = np.array([])
+        # This root detection is a trick to force the figure to render as polar,
+        # even if there are no detections
+        radius = np.array([0])
+        angles = np.array([0])
+        display_type = np.array(['root'])
 
         # Get the positions of all aircraft
         for aircraft in radar_detections.aircraft:
 
-            r, theta = LinAlgUtils.to_polar(aircraft.position)
+            r, theta = LinAlgUtils.to_polar(aircraft.position - radar_detections.player_position)
 
-            radius = np.append(radius, r*10)
+            radius = np.append(radius, r)
             angles = np.append(angles, theta)
+            display_type = np.append(
+                display_type,
+                'Enemy Aircraft' if aircraft.is_foe else 'Friendly Aircraft'
+            )
 
-        # for airfield in radar_detections.airfields:
-        #     print(LinAlgUtils.to_polar(airfield.position))
-
+        # Get the positions of all ground units
         for ground_object in radar_detections.ground_units:
 
-            r, theta = LinAlgUtils.to_polar(ground_object.position)
+            r, theta = LinAlgUtils.to_polar(
+                ground_object.position - radar_detections.player_position)
 
-            radius = np.append(radius, r*10)
+            radius = np.append(radius, r)
             angles = np.append(angles, theta)
+            display_type = np.append(
+                display_type,
+                'Enemy Ground Unit' if ground_object.is_foe else 'Friendly Ground Unit'
+            )
 
         angles = np.rad2deg(angles)
 
@@ -115,15 +125,53 @@ class FigureFactory:
         fig = px.scatter_polar(
             r=radius,
             theta=angles,
+            color=display_type,
+            color_discrete_map={
+                'Enemy Aircraft': 'red',
+                'Friendly Aircraft': 'green',
+                'Enemy Ground Unit': 'darkred',
+                'Friendly Ground Unit': 'darkgreen',
+                'Enemy Airfield': 'pink',
+                'Friendly Airfield': 'blue',
+                'root': 'rgba(0, 0, 0, 0)'
+            },
             start_angle=compass_heading+90,
-            # direction="counterclockwise",
             template='plotly_dark'
         )
+
+        # Add airfields
+        for airfield in radar_detections.airfields:
+            print(airfield)
+            r_start, theta_start = LinAlgUtils.to_polar(
+                airfield.position - radar_detections.player_position)
+
+            r_end, theta_end = LinAlgUtils.to_polar(
+                airfield.end_postition - radar_detections.player_position)
+
+            fig.add_trace(go.Scatterpolar(
+                r=[r_start, r_end],
+                theta=np.rad2deg([theta_start, theta_end]),
+                mode='lines',
+                line_color=('red' if airfield.is_foe else 'green')
+            ))
 
         fig.update_layout(
             width=400,
             height=400,
-            margin={"l": 25, "r": 25, "b": 25, "t": 25, "pad": 0}
+            showlegend=False,
+            margin={"l": 25, "r": 25, "b": 25, "t": 25, "pad": 0},
+            polar={
+
+                'radialaxis': {
+                    'showticklabels': False
+                },
+
+                'angularaxis': {
+                    'tickmode': 'array',
+                    'tickvals': list(range(0, 360, 45)),
+                    'ticktext': ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+                }
+            }
         )
 
         return fig
@@ -253,7 +301,13 @@ class FigureFactory:
         )
 
         # Set range of the axes
-        fig.update_xaxes(range=[origin[0]-fov, origin[0]+fov])
+        fig.update_xaxes(
+            range=[origin[0]-fov, origin[0]+fov],
+            tickmode='array',
+            tickvals=list(range(-180, 180, 45)),
+            ticktext=['S', 'SW', 'W', 'NW', 'N', 'NE', 'E', 'SE']
+        )
+
         fig.update_yaxes(range=[-fov, fov], showticklabels=False)
 
         return fig
