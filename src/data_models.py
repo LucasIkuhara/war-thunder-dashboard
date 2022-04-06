@@ -85,7 +85,7 @@ class HistoricTelemetry:
 class MapEntry:
     '''
     # MapEntry
-    The base class for radar objects stored in MapState. It has attributes 
+    The base class for radar objects stored in MapState. It has attributes
     common to all radar-detection objects.
     '''
 
@@ -132,9 +132,20 @@ class MapState:
     def __init__(self) -> None:
 
         self.aircraft: list[AircraftEntry] = []
-        self.airfields: list[AircraftEntry] = []
+        self.airfields: list[AirfieldEntry] = []
         self.ground_units: list[MapEntry] = []
         self.player_position = np.array([0, 0])
+
+    def clear_entries(self) -> None:
+        '''
+        # MapState
+        ## clear_entries
+        Clear all existing entries for aircraft, ground units and airfields.
+
+        '''
+        self.aircraft = []
+        self.airfields = []
+        self.ground_units = []
 
     def objects_from_json(self, json):
         '''
@@ -146,6 +157,8 @@ class MapState:
         Args:
             json: a JSON parsed as a dict containing a list of objects from the players map.
         '''
+        
+        self.clear_entries()
 
         for entry in json:
 
@@ -156,7 +169,7 @@ class MapState:
                         class_name='airfield',
                         position=np.array([entry['sx'], entry['sy']]),
                         end_postition=np.array([entry['ex'], entry['ey']]),
-                        is_foe=False
+                        is_foe=(True if entry['color'] == '#f00C00' else False)
                     ))
 
                 case 'aircraft':
@@ -168,14 +181,14 @@ class MapState:
                             class_name='aircraft',
                             position=np.array([entry['x'], entry['y']]),
                             velocity=np.array([entry['dx'], entry['dy']]),
-                            is_foe=False
+                            is_foe=(True if entry['color'] == '#f00C00' else False)
                         ))
 
                 case 'ground_model':
                     self.ground_units.append(MapEntry(
                         class_name=entry['icon'],
                         position=np.array([entry['x'], entry['y']]),
-                        is_foe=False
+                        is_foe=(True if entry['color'] == '#f00C00' else False)
                     ))
 
                 case _:
