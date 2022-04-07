@@ -208,7 +208,13 @@ class FigureFactory:
         return fig
 
     @staticmethod
-    def artificial_horizon(roll: float, pitch: float, yaw: float, fov: int = 40):
+    def artificial_horizon(
+        roll: float,
+        pitch: float,
+        yaw: float,
+        fov_h: int = 80,
+        fov_v: int = 80,
+    ):
 
         # Convert to radians
         roll = np.radians(roll)
@@ -244,7 +250,7 @@ class FigureFactory:
         # Get all increments of 10 and match them to two points for each line
         dynamic_markings_y = [y for y in range(-180, 180, 10)]
         line_width_base = np.tile(10, len(dynamic_markings_y)) * \
-            np.power(np.cos(np.radians(dynamic_markings_y)), 6)*2
+            np.power(np.cos(np.radians(dynamic_markings_y)), 0.9)*4
 
         right_markings = np.stack((line_width_base, dynamic_markings_y), axis=1)
         left_markings = np.stack((line_width_base*-1, dynamic_markings_y), axis=1)
@@ -333,12 +339,29 @@ class FigureFactory:
 
         # Set range of the axes
         fig.update_xaxes(
-            range=[origin[0]-fov, origin[0]+fov],
+            range=[origin[0]-fov_h, origin[0]+fov_h],
             tickmode='array',
-            tickvals=list(range(-180, 180, 45)),
-            ticktext=['S', 'SW', 'W', 'NW', 'N', 'NE', 'E', 'SE']
+            tickvals=list(range(-360, 361, 45)),
+            ticktext=[
+                'N',
+                'NE',
+                'E',
+                'SE',
+                'S',
+                'SW',
+                'W',
+                'NW',
+                'N',
+                'NE',
+                'E',
+                'SE',
+                'S',
+                'SW',
+                'W',
+                'NW',
+                'N']
         )
 
-        fig.update_yaxes(range=[-fov, fov], showticklabels=False)
+        fig.update_yaxes(range=[-fov_v, fov_v], showticklabels=False)
 
         return fig

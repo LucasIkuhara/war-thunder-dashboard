@@ -54,20 +54,35 @@
                 }
             },
 
-            mounted() {
-                
-                const slowRate = 1
-                const fastRate = 5
+            async mounted() {
 
-                this.favicon = document.getElementById('favicon')
+                console.log('Starting Dashboard')
 
+                const slowRate = 1;
+                const fastRate = 8;
+
+                this.favicon = document.getElementById('favicon');
+
+                // Start graphs
+                console.log('Initializing graphs...')
+                await Promise.all([
+                    this.plot('speed-gauge', 'speed', false),
+                    this.plot('altitude-gauge', 'altitude', false),
+                    this.plot('sme-gauge', 'energy', false),
+                    this.plot('radar-map', 'radar-map', false),
+                    this.plot('artificial-horizon', 'artificial-horizon', false)
+                ]);
+                console.log('Graphs initialized.')
+
+                // Start update cycles
                 // Slow cycle
                 setInterval(async () => {
                     
                     await Promise.all([
-                        this.plot('speed-gauge', 'speed'),
-                        this.plot('altitude-gauge', 'altitude'),
-                        this.plot('sme-gauge', 'energy')
+                        this.plot('speed-gauge', 'speed', true),
+                        this.plot('altitude-gauge', 'altitude', true),
+                        this.plot('sme-gauge', 'energy', true),
+                        this.plot('radar-map', 'radar-map', true)
                     ])
 
                 }, (1/slowRate)*1000);
@@ -76,8 +91,7 @@
                 setInterval(async () => {
                     
                     await Promise.all([
-                        this.plot('artificial-horizon', 'artificial-horizon'),
-                        this.plot('radar-map', 'radar-map')
+                        this.plot('artificial-horizon', 'artificial-horizon', true),
                     ])
 
                 }, (1/fastRate)*1000);
@@ -101,42 +115,18 @@
                     }
                 },
 
-                allDrawnOnce: function() {
-                    return this.speedGaugeDrawn && 
-                    this.altitudeGaugeDrawn && 
-                    this.SMEGaugeDrawn && 
-                    this.artificialHorizonDrawn
-                }
+             
             },
 
             methods: {
-                async plot(div, endpoint) {
+                async plot(div, endpoint, redraw=true, config={displayModeBar: false, responsive: true}) {
                 
                     await fetch(`http://localhost:8000/${endpoint}`)
                     .then( async (value) => {
                         let graph = await value.json()
                         
-                        if (!this.allDrawnOnce) {
-                            Plotly.newPlot(
-                                div, 
-                                graph.data, 
-                                graph.layout, 
-                                {
-                                    displayModeBar: false,
-                                    responsive: true
-                                })
-                        }
-
-                        else {
-                            Plotly.react( 
-                                div, 
-                                graph.data, 
-                                graph.layout, 
-                                {
-                                    displayModeBar: false,
-                                    responsive: true
-                                })
-                        }
+                        if (redraw) this.refreshGraph(div, graph, config);
+                        else this.startGraph(div, graph, config);
 
                         this.connStatus = true;
 
@@ -144,7 +134,35 @@
                         this.connStatus = false;
                     })
 
+                },
+
+               /**
+                 * refreshGraph
+                 * Refresh data in a Plotly Figure
+                **/
+                refreshGraph(divName, graph, config) {
+                    Plotly.react(
+                        divName, 
+                        graph.data, 
+                        graph.layout,
+                        config
+                    );
+                },
+
+                /**
+                 * startGraph
+                 * Initialize Plotly Figure
+                **/
+                startGraph(divName, graph, config) {
+                    console.log(`Starting ${divName}`)
+                    Plotly.newPlot(
+                        divName, 
+                        graph.data, 
+                        graph.layout, 
+                        config
+                    );
                 }
+
             }
 
         }).mount('#app')
