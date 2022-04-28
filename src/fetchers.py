@@ -5,6 +5,7 @@ import asyncio
 import aiohttp
 from aiolimiter import AsyncLimiter
 from collections.abc import Callable
+from os import getenv
 
 
 class DataThread:
@@ -34,6 +35,10 @@ class DataThread:
         self.max_requests = max_concurrent_requests
         self.timeout = timeout
         self.start_time = time()
+
+        # Determine game's API url
+        self.host = 'host.docker.internal' if getenv('DOCKER_DESKTOP') == 'y' else "http://localhost"
+        self.port = '8111'
 
         self.thread = Thread(target=self.start_loop, daemon=True)
         self.thread.start()
@@ -70,7 +75,7 @@ class DataThread:
                     await semaphore.acquire()
 
                     asyncio.create_task(self.fetch_data(
-                        "http://localhost:8111/state",
+                        f"http://{self.host}:{self.port}/state",
                         semaphore,
                         self.telemetry.state_from_json)
                     )
@@ -79,7 +84,7 @@ class DataThread:
                     await semaphore.acquire()
 
                     asyncio.create_task(self.fetch_data(
-                        "http://localhost:8111/indicators",
+                        f"http://{self.host}:{self.port}/indicators",
                         semaphore,
                         self.telemetry.indicators_from_json)
                     )
@@ -88,7 +93,7 @@ class DataThread:
                     await semaphore.acquire()
 
                     asyncio.create_task(self.fetch_data(
-                        "http://localhost:8111/map_obj.json",
+                        f"http://{self.host}:{self.port}/map_obj.json",
                         semaphore,
                         self.map.objects_from_json)
                     )
