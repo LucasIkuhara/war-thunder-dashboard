@@ -250,7 +250,7 @@ class FigureFactory:
         # Get all increments of 10 and match them to two points for each line
         dynamic_markings_y = [y for y in range(-180, 180, 10)]
         line_width_base = np.tile(10, len(dynamic_markings_y)) * \
-            np.power(np.cos(np.radians(dynamic_markings_y)), 0.9)*4
+            np.power(np.cos(np.radians(dynamic_markings_y)), 0.6)*4
 
         right_markings = np.stack((line_width_base, dynamic_markings_y), axis=1)
         left_markings = np.stack((line_width_base*-1, dynamic_markings_y), axis=1)

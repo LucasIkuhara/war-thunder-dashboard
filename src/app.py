@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-data_thread = DataThread(10, 50, 20, 0.5)
+data_thread = DataThread(60, 50, 150, 0.5)
 telemetry = data_thread.telemetry
 radar = data_thread.map
 
