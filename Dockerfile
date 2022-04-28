@@ -14,4 +14,4 @@ EXPOSE 8000
 
 WORKDIR /wtd/src
 
-CMD ["python3", "-m", "uvicorn", "app:app"]
+CMD ["python3", "-m", "uvicorn", "--host", "0.0.0.0", "app:app"]

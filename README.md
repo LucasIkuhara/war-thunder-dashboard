@@ -13,20 +13,27 @@ The dashboard has a set of graphs, indicators and custom visualizations for the 
 
 This application has a Dockerfile setup to make it easier to run, but it can also be run in any machine with Python 3.10 or above, although there are some extra steps involved.
 
-### Running with Docker (recommend)
+### Running with Docker Desktop on Windows or Mac (recommend)
 
-To run the application using the Github image, simply run:
+To run the application using the remote image, simply run:
 
 ```shell
-$ docker run tba:tba
+docker run -p 8000:8000 lucasikuhara/wt-client
 ```
 
 If you want to build locally instead, assuming that you have already cloned the repository and have the
 source code in your machine, you can run the following from inside the directory to which the repository was cloned to:
 
 ```shell
-$ docker build --tag my-wt-dashboard .
-$ docker run my-wt-dashboard
+docker build --tag my-wt-dashboard .
+docker run -p 8000:8000 my-wt-dashboard
+```
+
+Note: if running using standard Docker in Windows or Mac, add '--add-host host.docker.internal:host-gateway'
+to your run commands. It should look like the following example:
+
+```shell
+docker run -p 8000:8000 --add-host host.docker.internal:host-gateway my-wt-dashboard
 ```
 
 ### Running without Docker
@@ -34,14 +41,14 @@ $ docker run my-wt-dashboard
 Assuming you already have the source code in your machine, as well as Python 3.10 (or above) and pip installed, start by installing the dependencies:
 
 ```shell
-$ pip3 install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 To run the application, run:
 
 ```shell
-$ cd src/
-$ python3 -m uvicorn app:app
+cd src/
+python3 -m uvicorn app:app
 ```
 
 ### Accessing the Client
