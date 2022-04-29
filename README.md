@@ -9,6 +9,10 @@ hopefully having some fun in the process. I have also tried to stick to good pra
 
 The dashboard has a set of graphs, indicators and custom visualizations for the aircraft in the free-to-play game War Thunder. The application is built upon an API provided and hosted by the game itself, that runs at http://localhost:8111.
 
+## Features
+
+![Image](./pictures/home.png "home")
+
 ## How to run
 
 This application has a Dockerfile setup to make it easier to run, but it can also be run in any machine with Python 3.10 or above, although there are some extra steps involved.
