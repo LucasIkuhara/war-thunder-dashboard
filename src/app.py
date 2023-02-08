@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fetchers import DataThread
 from utils import graph_as_json
 from figures import FigureFactory
+import uvicorn
 
 
 app = FastAPI()
@@ -72,3 +73,7 @@ def radar_map():
         radar,
         telemetry.compass
     )
+
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", port=8000, host="0.0.0.0",log_level="info")

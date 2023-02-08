@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import numpy as np
-from utils import LinAlgUtils
 
 
 class HistoricTelemetry:
