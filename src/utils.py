@@ -1,6 +1,5 @@
 from json import dumps
 from plotly.utils import PlotlyJSONEncoder
-from fastapi.responses import PlainTextResponse
 import numpy as np
 
 
@@ -11,7 +10,7 @@ def graph_as_json(func, *args, **kwargs):
         graph = func(*args, **kwargs)
         json = dumps(graph, cls=PlotlyJSONEncoder)
 
-        return PlainTextResponse(json)
+        return json
 
     decorated_function = decorated
     decorated_function.__name__ = f"{func.__name__}_with_graph_as_json"
@@ -24,8 +23,6 @@ class LinAlgUtils:
     @staticmethod
     def to_polar(vector: np.array):
         '''
-        # LinAlgUtils
-        ## to_polar
         Converts a vector from Cartesian coordinates to polar coordinates.
 
         Args:
