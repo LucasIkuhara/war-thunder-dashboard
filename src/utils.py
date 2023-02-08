@@ -6,7 +6,7 @@ import numpy as np
 
 def graph_as_json(func, *args, **kwargs):
 
-    def decorated():
+    def decorated(*args, **kwargs):
 
         graph = func(*args, **kwargs)
         json = dumps(graph, cls=PlotlyJSONEncoder)
