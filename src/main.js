@@ -95,6 +95,27 @@ Vue.createApp({
         },
 
         /**
+         * Register a Data Thread and a Graphing Thread for completely embarked operation,
+         * without requiring the python backend.
+         * 
+         * @throws In case service workers are not supported in the environment.
+        **/
+        async registerServiceThreads() {
+
+            if (('serviceWorker' in navigator) && '') 
+                throw new Error('ServiceWorker API not available in the current environment. Use of the app will require a backend.');
+
+            // Start new threads
+            const graphing_thread = await navigator.serviceWorker.register('/src/graphing_thread.js');
+            const data_thread = new Worker("/src/data_thread.js");
+
+            // Connect threads via MessageChannel, so they can talk to each other
+            const channel = new MessageChannel();
+            graphing_thread.active.postMessage('register', [channel.port2]);
+            data_thread.postMessage('register', [channel.port1])
+        },
+
+        /**
          * refreshGraph
          * Refresh data in a Plotly Figure
         **/
