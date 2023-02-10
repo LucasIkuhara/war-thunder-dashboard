@@ -2,6 +2,7 @@
 # All missing imports below are handled by Pyodide
 
 import json
+from time import time
 
 
 class GraphJsProxy:
@@ -12,14 +13,17 @@ class GraphJsProxy:
     def __init__(self):
         self.telemetry = HistoricTelemetry(100)
         self.radar = MapState()
+        self.start_time = time()
 
     def state_from_json(self, value):
         state = json.loads(value)
         self.telemetry.state_from_json(state)
+        self.telemetry.time = time() - self.start_time
 
     def indicators_from_json(self, value):
         indicators = json.loads(value)
         self.telemetry.indicators_from_json(indicators)
+        self.telemetry.time = time() - self.start_time
 
     def objects_from_json(self, value):
         indicators = json.loads(value)
