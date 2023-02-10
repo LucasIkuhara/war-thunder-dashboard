@@ -107,8 +107,8 @@ Vue.createApp({
                 throw new Error('ServiceWorker API not available in the current environment. Use of the app will require a backend.');
 
             // Start new threads
-            const graphing_thread = await navigator.serviceWorker.register('/src/graphing_thread.js');
-            const data_thread = new Worker("/src/data_thread.js");
+            const graphing_thread = await navigator.serviceWorker.register('./graphing_thread.js');
+            const data_thread = new Worker("./data_thread.js");
 
             // Connect threads via MessageChannel, so they can talk to each other
             const channel = new MessageChannel();
