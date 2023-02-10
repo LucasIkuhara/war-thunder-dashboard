@@ -202,7 +202,8 @@ class FigureFactory:
                     'tickvals': list(range(0, 360, 45)),
                     'ticktext': ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
                 }
-            }
+            },
+            uirevision=True
         )
 
         return fig
@@ -334,7 +335,8 @@ class FigureFactory:
             showlegend=False,
             paper_bgcolor='#111111',
             plot_bgcolor='#111111',
-            font_color='#f2f5fa'
+            font_color='#f2f5fa',
+            dragmode=False
         )
 
         # Set range of the axes
