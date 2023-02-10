@@ -1,5 +1,9 @@
 # War Thunder Dashboard for Aircraft
 
+## Try it live!
+
+There is web-based version available at https://lucasikuhara.github.io/war-thunder-dashboard/
+
 ## Motivations
 
 This dashboard is a project intended to sharpen my Plotly and FastAPI skills, while 
