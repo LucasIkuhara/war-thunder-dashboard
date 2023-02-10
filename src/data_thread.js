@@ -48,9 +48,9 @@ async function updateTelemetry(endpoint) {
 
 // Register War Thunder's endpoints
 updateRate = {
-    "state": 0.1,
-    "indicators": 0.1,
-    "map_obj.json": 1
+    "state": 0.03,
+    "indicators": 0.03,
+    "map_obj.json": 0.3
 }
 
 Object.keys(updateRate).forEach(async endpoint => {
