@@ -1,6 +1,12 @@
 importScripts('https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js');
 console.log("Starting data thread..");
 
+/**
+ * Represents a telemetry message generated in the data thread.
+ * @typedef telemetryMessage 
+ * @property {string} name Type of telemetry represented by 'update-<type>'.
+ * @property {object} data The telemetry data.
+ */
 
 // Wait for Channel Message port to be registered
 this.port = null;
@@ -23,7 +29,10 @@ async function updateTelemetry(endpoint) {
     try {
         const data = await fetch(`http://localhost:8111/${endpoint}`);
 
-        // Post to main thread
+        /**
+         * Post to graphing thread 
+         * @type {telemetry-message }
+         */
         const msg = {
             name: `update-${endpoint}`,
             data: await data.json()
