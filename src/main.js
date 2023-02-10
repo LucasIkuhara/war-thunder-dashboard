@@ -1,4 +1,3 @@
-
 Vue.createApp({
 
     data() {
@@ -15,6 +14,7 @@ Vue.createApp({
     async mounted() {
 
         console.log('Starting Dashboard')
+        this.registerServiceThreads();
 
         const slowRate = 1;
         const fastRate = 8;
@@ -79,19 +79,20 @@ Vue.createApp({
     methods: {
         async plot(div, endpoint, redraw=true, config={displayModeBar: false, responsive: true}) {
         
-            await fetch(`http://localhost:8000/${endpoint}`)
-            .then( async (value) => {
-                let graph = await value.json()
-                
+            try {
+                const response = await fetch(`http://localhost:8000/${endpoint}`)
+                let graph = await response.json()
+
                 if (redraw) this.refreshGraph(div, graph, config);
                 else this.startGraph(div, graph, config);
 
                 this.connStatus = true;
+            }
 
-            }).catch(() => {
+            catch (err) {
+                console.log(`Failed to plot ${div} due to an exception. Error: ${err.stack}`);
                 this.connStatus = false;
-            })
-
+            }
         },
 
         /**

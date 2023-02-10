@@ -48,9 +48,9 @@ async function updateTelemetry(endpoint) {
 
 // Register War Thunder's endpoints
 updateRate = {
-    "state": 5,
-    "indicators": 5,
-    "map_obj.json": 5
+    "state": 0.1,
+    "indicators": 0.1,
+    "map_obj.json": 1
 }
 
 Object.keys(updateRate).forEach(async endpoint => {
@@ -59,7 +59,7 @@ Object.keys(updateRate).forEach(async endpoint => {
     console.log(`Starting update loop for ${endpoint} every ${rate} seconds.`);
     setInterval(async () => {
         if (!this.port)
-            throw new Error('Cannot update telemetry before the message channel port has been registered.   ')
+            throw new Error('Cannot update telemetry before the message channel port has been registered.')
 
         await updateTelemetry(endpoint)
 
