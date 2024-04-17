@@ -1,0 +1,18 @@
+{
+    "background_color": "#000000",
+    "description": "A WarThunder Air-Battles dashboard with live statistics.",
+    "display": "standalone",
+    "icons": [
+      {
+        "sizes": "300x300",
+        "src": "./assets/boid.png",
+        "type": "image/png"
+      }
+    ],
+    "id": "/",
+    "name": "War Thunder Dashboard",
+    "scope": "./",
+    "short_name": "WTDash",
+    "start_url": "./",
+    "theme_color": "#000000"
+}
