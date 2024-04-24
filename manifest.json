@@ -4,8 +4,8 @@
     "display": "standalone",
     "icons": [
       {
-        "sizes": "300x300",
-        "src": "./assets/boid.png",
+        "sizes": "512x512",
+        "src": "./assets/wtds.png",
         "type": "image/png"
       }
     ],
