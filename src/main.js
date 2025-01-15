@@ -141,7 +141,7 @@ Vue.createApp({
 
         /**
          * refreshGraph
-         * Refresh data in a Plotly Figure
+         * Refresh data in a Plotly Figure  
         **/
         refreshGraph(divName, graph, config) {
             Plotly.react(
